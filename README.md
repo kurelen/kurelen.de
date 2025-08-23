@@ -59,6 +59,8 @@ sudo docker compose exec web npx prisma --version
 
 ### Common scripts
 
+**NPM**
+
 ```bash
 # Format code
 npm run format
@@ -71,6 +73,19 @@ npm run test
 
 # Storybook
 npm run storybook
+```
+
+**Make**
+
+```bash
+make up          # build + start
+make logs        # tail web logs
+make ps          # show services
+make down        # stop + remove containers (keeps DB)
+make down-v      # stop + remove containers + volumes (wipes DB)  ⚠️
+make migrate NAME=init
+make prisma ARGS="generate"
+make psql        # opens psql inside the postgres container
 ```
 
 ## Project structure

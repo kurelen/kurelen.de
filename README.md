@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kurelen.de
+
+Private Next.js application with Postgres authentication.  
+Development is fully containerized via Docker Compose.
+
+---
+
+## Requirements
+
+- [Docker](https://docs.docker.com/get-docker/) (and `sudo` access if your user is not in the `docker` group)
+- Node.js 22+ (optional, only needed if you want to run Next.js outside Docker)
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### 1. Clone and install
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/kurelen/kurelen.de.git
+cd kurelen.de
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Copy .env.example → .env
+- Fill in secrets (like `POSTGRES_PASSWORD`)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cp .env.example .env
+```
 
-## Learn More
+### 3. Start development stack
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+sudo docker compose up -d --build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This will start:
+- Postgres on port 5432
+- Next.js dev server on port 3000
+Open http://localhost:3000
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 4. Logs & commands
 
-## Deploy on Vercel
+```bash
+# Follow logs
+sudo docker compose logs -f web
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Run a Prisma command inside the web container
+sudo docker compose exec web npx prisma --version
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Development Workflow
+
+- Code changes in your local folder are **mounted** into the Docker container → hot reload works.
+- `node_modules` and `.next` are stored in container volumes for speed and consistency.
+
+### Common scripts
+
+```bash
+# Format code
+npm run format
+
+# Lint code
+npm run lint
+
+# Run tests
+npm run test
+
+# Storybook
+npm run storybook
+```
+
+## Project structure
+
+- `/src` – Next.js application code
+- `/prisma` – Prisma schema and migrations
+- `/docker-compose.yml` – Dev services (Next.js, Postgres)
+- `/.env.example` – Example environment config
+- `/.env` – Local environment config (not in git)
+

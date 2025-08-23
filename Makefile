@@ -7,6 +7,10 @@ PROJECT := kurelen
 DOCKER ?= sudo docker
 COMPOSE := $(DOCKER) compose
 
+UID := $(shell id -u)
+GID := $(shell id -g)
+EXEC_USER := -u $(UID):$(GID)
+
 .DEFAULT_GOAL := help
 
 .PHONY: up down down-v restart logs logs-all ps sh psql prisma migrate db-push \
@@ -49,6 +53,10 @@ sh:
 psql:
 	$(COMPOSE) exec postgres bash -lc 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
 
+# prisma generate (root)
+prisma-gen:
+	$(COMPOSE) exec web npx prisma generate
+
 ## Run Prisma with custom args: make prisma ARGS="studio --port 5555 --browser none"
 prisma:
 	$(COMPOSE) exec web npx prisma $(ARGS)
@@ -56,11 +64,18 @@ prisma:
 ## Run Prisma migrate dev with a name: make migrate NAME=init
 migrate:
 	@if [ -z "$(NAME)" ]; then echo "Usage: make migrate NAME=init"; exit 1; fi
-	$(COMPOSE) exec web npx prisma migrate dev --name $(NAME)
+	$(COMPOSE) exec $(EXEC_USER) web npx prisma migrate dev --name $(NAME)
 
 ## Push Prisma schema without creating a migration
 db-push:
-	$(COMPOSE) exec web npx prisma db push
+	$(COMPOSE) exec $(EXEC_USER) web npx prisma db push
+
+fix-perms:
+	sudo chown -R $(UID):$(GID) .
+
+# one-time helper to fix perms on volumes
+vol-perms:
+	$(COMPOSE) exec web sh -lc 'chown -R $(UID):$(GID) /app/node_modules /app/.next 2>/dev/null || true'
 
 ## Remove app-only volumes (node_modules, .next) to fix caching/permissions
 reset-app-volumes:

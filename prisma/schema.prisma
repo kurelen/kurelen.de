@@ -6,10 +6,85 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique @db.Citext
+  name         String?  @db.VarChar(100)
+  passwordHash String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sessions        Session[]
+  invitesSent     Invite[]        @relation("InvitesSent") // already present
+  invitesConsumed Invite[]        @relation("InvitesConsumed") // ← ADD THIS
+  passwordResets  PasswordReset[]
+}
+
+model Session {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Store only a HASH of the session token (hex sha256 -> 64 chars)
+  tokenHash String @unique @db.Char(64)
+
+  createdAt DateTime  @default(now())
+  // 30-day rolling expiry by default; you can also set this in app code if preferred
+  expiresAt DateTime  @default(dbgenerated("now() + interval '30 days'"))
+  revokedAt DateTime?
+
+  ip        String? @db.VarChar(64)
+  userAgent String? @db.VarChar(255)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Invite {
+  id        String @id @default(uuid())
+  tokenHash String @unique @db.Char(64)
+  email     String @db.Citext
+
+  invitedById String?
+  invitedBy   User?   @relation("InvitesSent", fields: [invitedById], references: [id])
+
+  createdAt  DateTime  @default(now())
+  expiresAt  DateTime  @default(dbgenerated("now() + interval '3 days'"))
+  consumedAt DateTime?
+
+  consumedById String?
+  consumedBy   User?   @relation("InvitesConsumed", fields: [consumedById], references: [id]) // ← NAME IT
+
+  @@index([email])
+  @@index([expiresAt])
+}
+
+model PasswordReset {
+  id        String @id @default(uuid())
+  // Store only HASH of the reset token
+  tokenHash String @unique @db.Char(64)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  // Set in DB or app; keeping no default here lets you choose the TTL (e.g., 1 hour) in code
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  @@index([userId])
+  @@index([expiresAt])
 }

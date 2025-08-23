@@ -23,6 +23,14 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  {
+    rules: {
+      quotes: ["error", "double", { avoidEscape: true }],
+      "jsx-quotes": ["error", "prefer-double"],
+      semi: ["error", "always"],
+      // do not set indent here; Prettier handles it (2 spaces)
+    },
+  },
   ...storybook.configs["flat/recommended"],
 ];
 

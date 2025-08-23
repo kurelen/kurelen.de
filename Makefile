@@ -70,6 +70,9 @@ migrate:
 db-push:
 	$(COMPOSE) exec $(EXEC_USER) web npx prisma db push
 
+seed:
+	$(COMPOSE) exec $(EXEC_USER) web npm run db:seed
+
 fix-perms:
 	sudo chown -R $(UID):$(GID) .
 

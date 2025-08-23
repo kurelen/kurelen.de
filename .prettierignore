@@ -4,3 +4,4 @@ dist
 build
 coverage
 .storybook-out
+prisma/migrations/

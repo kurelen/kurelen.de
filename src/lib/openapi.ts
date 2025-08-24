@@ -5,24 +5,17 @@ import {
 import {
   InviteCreateRequest,
   InviteCreateResponse,
-  UserPublic,
+  InviteVerifyResponse,
+  RegisterRequest,
+  RegisterResponse,
   ErrorResponse,
 } from "@/lib/schemas";
 
 const registry = new OpenAPIRegistry();
-registry.registerComponent("securitySchemes", "cookieAuth", {
-  type: "apiKey",
-  in: "cookie",
-  name: "sid",
-});
-
-registry.register("User", UserPublic);
-registry.register("Error", ErrorResponse);
 
 registry.registerPath({
   method: "post",
   path: "/api/invites",
-  description: "Create an invite link (valid for 3 days).",
   tags: ["Invites"],
   security: [{ cookieAuth: [] }],
   request: {
@@ -32,10 +25,6 @@ registry.registerPath({
     201: {
       description: "Invite created",
       content: { "application/json": { schema: InviteCreateResponse } },
-    },
-    400: {
-      description: "Invalid input",
-      content: { "application/json": { schema: ErrorResponse } },
     },
     401: {
       description: "Not authenticated",
@@ -48,18 +37,59 @@ registry.registerPath({
   },
 });
 
+registry.registerPath({
+  method: "get",
+  path: "/api/invites/verify",
+  tags: ["Invites"],
+  request: { query: { token: { type: "string" } } },
+  responses: {
+    200: {
+      description: "Valid",
+      content: { "application/json": { schema: InviteVerifyResponse } },
+    },
+    400: {
+      description: "Invalid",
+      content: { "application/json": { schema: ErrorResponse } },
+    },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/auth/register",
+  tags: ["Auth"],
+  request: {
+    body: { content: { "application/json": { schema: RegisterRequest } } },
+  },
+  responses: {
+    201: {
+      description: "Registered",
+      content: { "application/json": { schema: RegisterResponse } },
+    },
+    400: {
+      description: "Invalid",
+      content: { "application/json": { schema: ErrorResponse } },
+    },
+  },
+});
+
 export function getOpenAPIDocument() {
   const generator = new OpenApiGeneratorV3(registry.definitions);
   return generator.generateDocument({
     openapi: "3.0.3",
-    info: { title: "Kurelen API", version: "0.1.0" },
+    info: { title: "Kurelen API", version: "0.2.0" },
     servers: [{ url: "http://localhost:3000" }],
-    security: [{ cookieAuth: [] }],
+    components: {
+      securitySchemes: {
+        cookieAuth: { type: "apiKey", in: "cookie", name: "sid" },
+      },
+    },
     tags: [
       { name: "Invites" },
       { name: "Auth" },
       { name: "Users" },
       { name: "Sessions" },
     ],
+    security: [{ cookieAuth: [] }],
   });
 }

@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { PrismaClient, Role } from "@prisma/client";
+import { PrismaClient, Permission } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 
@@ -19,7 +19,12 @@ async function main() {
   const passwordHash = await bcrypt.hash(rawPassword, 12);
 
   await prisma.user.create({
-    data: { email, name, role: Role.ADMIN, passwordHash },
+    data: {
+      email,
+      name,
+      passwordHash,
+      permissions: { create: [{ permission: Permission.ADMIN }] },
+    },
   });
 
   console.log("========================================");

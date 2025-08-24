@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,9 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
+enum Permission {
   ADMIN
+  RECEIPTS
+  FAMILYTREE
 }
 
 model User {
@@ -23,14 +18,25 @@ model User {
   email        String   @unique @db.Citext
   name         String?  @db.VarChar(100)
   passwordHash String
-  role         Role     @default(USER)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // NEW: m:n permissions via join table
+  permissions UserPermission[]
+
   sessions        Session[]
-  invitesSent     Invite[]        @relation("InvitesSent") // already present
-  invitesConsumed Invite[]        @relation("InvitesConsumed") // ← ADD THIS
+  invitesSent     Invite[]        @relation("InvitesSent")
+  invitesConsumed Invite[]        @relation("InvitesConsumed")
   passwordResets  PasswordReset[]
+}
+
+model UserPermission {
+  userId     String
+  permission Permission
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, permission])
+  @@index([permission])
 }
 
 model Session {
@@ -54,19 +60,19 @@ model Session {
 }
 
 model Invite {
-  id        String @id @default(uuid())
-  tokenHash String @unique @db.Char(64)
-  email     String @db.Citext
-
-  invitedById String?
-  invitedBy   User?   @relation("InvitesSent", fields: [invitedById], references: [id])
-
-  createdAt  DateTime  @default(now())
-  expiresAt  DateTime  @default(dbgenerated("now() + interval '3 days'"))
-  consumedAt DateTime?
-
+  id           String    @id @default(uuid())
+  tokenHash    String    @unique @db.Char(64)
+  email        String    @db.Citext
+  invitedById  String?
+  invitedBy    User?     @relation("InvitesSent", fields: [invitedById], references: [id])
+  createdAt    DateTime  @default(now())
+  expiresAt    DateTime  @default(dbgenerated("now() + interval '3 days'"))
+  consumedAt   DateTime?
   consumedById String?
-  consumedBy   User?   @relation("InvitesConsumed", fields: [consumedById], references: [id]) // ← NAME IT
+  consumedBy   User?     @relation("InvitesConsumed", fields: [consumedById], references: [id])
+
+  // NEW: permissions array to grant on registration
+  permissions Permission[] @default([])
 
   @@index([email])
   @@index([expiresAt])

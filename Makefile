@@ -1,98 +1,34 @@
-# Makefile for kurelen (Docker Compose dev workflow)
-
 SHELL := /bin/bash
 PROJECT := kurelen
-
-# Use sudo by default; override with: make DOCKER=docker up
 DOCKER ?= sudo docker
 COMPOSE := $(DOCKER) compose
 
-UID := $(shell id -u)
-GID := $(shell id -g)
-EXEC_USER := -u $(UID):$(GID)
+# --- Host (app) commands ---
+host-dev:
+	npm run dev
 
-.DEFAULT_GOAL := help
+host-gen:
+	npx prisma generate
 
-.PHONY: up down down-v restart logs logs-all ps sh psql prisma migrate db-push \
-        reset-app-volumes clean help
+host-migrate:
+	@if [ -z "$(NAME)" ]; then echo "Usage: make host-migrate NAME=init"; exit 1; fi
+	npx prisma migrate dev --name $(NAME)
 
-## Build images and start containers in the background
-up:
-	$(COMPOSE) up -d --build
+host-deploy:
+	npx prisma migrate deploy
 
-## Stop and remove containers and network (keeps named volumes)
-down:
+host-seed:
+	npm run db:seed
+
+# --- Docker (DB only) commands ---
+db-up:
+	$(COMPOSE) up -d postgres
+
+db-down:
 	$(COMPOSE) down --remove-orphans
 
-## Stop and remove EVERYTHING including named volumes (⚠️ wipes DB data)
-down-v:
-	$(COMPOSE) down -v --remove-orphans
+db-logs:
+	$(COMPOSE) logs -f postgres
 
-## Restart stack (down + up)
-restart:
-	$(MAKE) down
-	$(MAKE) up
-
-## Tail logs from the web service
-logs:
-	$(COMPOSE) logs -f web
-
-## Tail logs from all services
-logs-all:
-	$(COMPOSE) logs -f
-
-## Show running services
-ps:
-	$(COMPOSE) ps
-
-## Shell into the web container
-sh:
-	$(COMPOSE) exec web sh
-
-## Open psql inside the postgres container (uses env from the container)
 psql:
 	$(COMPOSE) exec postgres bash -lc 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
-
-# prisma generate (root)
-prisma-gen:
-	$(COMPOSE) exec web npx prisma generate
-
-## Run Prisma with custom args: make prisma ARGS="studio --port 5555 --browser none"
-prisma:
-	$(COMPOSE) exec web npx prisma $(ARGS)
-
-## Run Prisma migrate dev with a name: make migrate NAME=init
-migrate:
-	@if [ -z "$(NAME)" ]; then echo "Usage: make migrate NAME=init"; exit 1; fi
-	$(COMPOSE) exec $(EXEC_USER) web npx prisma migrate dev --name $(NAME)
-
-## Push Prisma schema without creating a migration
-db-push:
-	$(COMPOSE) exec $(EXEC_USER) web npx prisma db push
-
-seed:
-	$(COMPOSE) exec $(EXEC_USER) web npm run db:seed
-
-fix-perms:
-	sudo chown -R $(UID):$(GID) .
-
-# one-time helper to fix perms on volumes
-vol-perms:
-	$(COMPOSE) exec web sh -lc 'chown -R $(UID):$(GID) /app/node_modules /app/.next 2>/dev/null || true'
-
-## Remove app-only volumes (node_modules, .next) to fix caching/permissions
-reset-app-volumes:
-	-$(COMPOSE) stop web
-	-$(COMPOSE) rm -f web
-	-$(DOCKER) volume rm $(PROJECT)_node_modules $(PROJECT)_next_cache
-
-## Clean stack (down + reset app volumes; keeps DB volume)
-clean:
-	$(MAKE) down
-	$(MAKE) reset-app-volumes
-
-## Show this help
-help:
-	@echo "Usage: make <target> [DOCKER=docker]"
-	@echo
-	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9_-]+:.*## / { printf "\033[36m%-20s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)

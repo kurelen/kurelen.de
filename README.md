@@ -38,9 +38,10 @@ sudo docker compose up -d --build
 ```
 
 This will start:
+
 - Postgres on port 5432
 - Next.js dev server on port 3000
-Open http://localhost:3000
+  Open http://localhost:3000
 
 ### 4. Logs & commands
 
@@ -95,4 +96,3 @@ make psql        # opens psql inside the postgres container
 - `/docker-compose.yml` – Dev services (Next.js, Postgres)
 - `/.env.example` – Example environment config
 - `/.env` – Local environment config (not in git)
-

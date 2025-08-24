@@ -4,7 +4,9 @@ import Hello from "./Hello";
 
 it("renders greeting", () => {
   render(<Hello name="Kurelen" />);
-  expect(screen.getByRole("button", { name: "Hello, Kurelen!" })).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: "Hello, Kurelen!" })
+  ).toBeInTheDocument();
 });
 
 it("fires onClick", async () => {

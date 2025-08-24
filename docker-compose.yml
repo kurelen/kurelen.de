@@ -13,6 +13,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   web:
+    profiles: ["container-web"]
     build:
       context: .
       dockerfile: Dockerfile.dev

@@ -1,7 +1,9 @@
 # Kurelen.de
 
-Private Next.js application with Postgres authentication.  
-Development is fully containerized via Docker Compose.
+[![CI](https://github.com/kurelen/kurelen.de/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/kurelen/kurelen.de/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/kurelen/kurelen.de/branch/main/graph/badge.svg)](https://codecov.io/gh/kurelen/kurelen.de)
+
+Private Next.js application for family. Collect and share receipts.
 
 ---
 
@@ -34,7 +36,8 @@ cp .env.example .env
 ### 3. Start development stack
 
 ```bash
-sudo docker compose up -d --build
+make db-up
+npm run dev
 ```
 
 This will start:
@@ -47,16 +50,8 @@ This will start:
 
 ```bash
 # Follow logs
-sudo docker compose logs -f web
-
-# Run a Prisma command inside the web container
-sudo docker compose exec web npx prisma --version
+make db-logs
 ```
-
-## Development Workflow
-
-- Code changes in your local folder are **mounted** into the Docker container → hot reload works.
-- `node_modules` and `.next` are stored in container volumes for speed and consistency.
 
 ### Common scripts
 
@@ -79,20 +74,15 @@ npm run storybook
 **Make**
 
 ```bash
-make up          # build + start
-make logs        # tail web logs
-make ps          # show services
-make down        # stop + remove containers (keeps DB)
-make down-v      # stop + remove containers + volumes (wipes DB)  ⚠️
-make migrate NAME=init
-make prisma ARGS="generate"
-make psql        # opens psql inside the postgres container
+make db-up          # build + start postgres
+make db-logs        # tail postgres logs
+make db-down        # show services
+make psql           # opens psql inside the postgres container
 ```
 
 ## Project structure
 
 - `/src` – Next.js application code
 - `/prisma` – Prisma schema and migrations
-- `/docker-compose.yml` – Dev services (Next.js, Postgres)
 - `/.env.example` – Example environment config
 - `/.env` – Local environment config (not in git)

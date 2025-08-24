@@ -10,7 +10,7 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     globals: true,
     css: true,
-    coverage: { reporter: ["text", "html"] },
+    coverage: { reporter: ["text", "html", "lcov"] },
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },

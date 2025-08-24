@@ -21,7 +21,6 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  // NEW: m:n permissions via join table
   permissions UserPermission[]
 
   sessions        Session[]
@@ -44,11 +43,9 @@ model Session {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Store only a HASH of the session token (hex sha256 -> 64 chars)
   tokenHash String @unique @db.Char(64)
 
   createdAt DateTime  @default(now())
-  // 30-day rolling expiry by default; you can also set this in app code if preferred
   expiresAt DateTime  @default(dbgenerated("now() + interval '30 days'"))
   revokedAt DateTime?
 
@@ -71,7 +68,6 @@ model Invite {
   consumedById String?
   consumedBy   User?     @relation("InvitesConsumed", fields: [consumedById], references: [id])
 
-  // NEW: permissions array to grant on registration
   permissions Permission[] @default([])
 
   @@index([email])

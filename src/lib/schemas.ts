@@ -35,9 +35,25 @@ export const InviteVerifyResponse = z.object({
 export const RegisterRequest = z.object({
   token: z.string().min(10),
   name: z.string().min(1).max(100),
-  password: z.string().min(8, "Password must be at least 8 characters").max(200),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(200),
 });
 export const RegisterResponse = z.object({
   ok: z.literal(true),
   userId: z.string().uuid(),
+});
+
+export const LoginRequest = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
+export const LoginResponse = z.object({ ok: z.literal(true) });
+
+export const MeResponse = z.object({
+  id: z.string().uuid(),
+  email: z.string().email(),
+  name: z.string().nullable().optional(),
+  permissions: z.array(z.enum(["ADMIN", "RECEIPTS", "FAMILYTREE"])),
 });

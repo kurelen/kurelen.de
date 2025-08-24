@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/kurelen/kurelen.de/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/kurelen/kurelen.de/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/kurelen/kurelen.de/branch/main/graph/badge.svg)](https://codecov.io/gh/kurelen/kurelen.de)
+[![Storybook](https://img.shields.io/badge/Storybook-live-ff4785?logo=storybook)](https://kurelen.github.io/kurelen.de/)
 
 Private Next.js application for family. Collect and share receipts.
 

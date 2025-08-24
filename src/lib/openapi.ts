@@ -10,6 +10,11 @@ import {
 } from "@/lib/schemas";
 
 const registry = new OpenAPIRegistry();
+registry.registerComponent("securitySchemes", "cookieAuth", {
+  type: "apiKey",
+  in: "cookie",
+  name: "sid",
+});
 
 registry.register("User", UserPublic);
 registry.register("Error", ErrorResponse);
@@ -49,11 +54,6 @@ export function getOpenAPIDocument() {
     openapi: "3.0.3",
     info: { title: "Kurelen API", version: "0.1.0" },
     servers: [{ url: "http://localhost:3000" }],
-    components: {
-      securitySchemes: {
-        cookieAuth: { type: "apiKey", in: "cookie", name: "sid" },
-      },
-    },
     security: [{ cookieAuth: [] }],
     tags: [
       { name: "Invites" },

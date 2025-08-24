@@ -6,13 +6,14 @@ import { useEffect, useRef } from "react";
 export default function ApiDocsPage() {
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const init = () => {
+    if (window.Redoc && containerRef.current) {
+      window.Redoc.init("/api/openapi.json", {}, containerRef.current);
+    }
+  };
+
   useEffect(() => {
-    const init = () => {
-      if (window.Redoc && containerRef.current) {
-        window.Redoc.init("/api/openapi.json", {}, containerRef.current);
-      }
-    };
-    if (window.Redoc) init();
+    init();
   }, []);
 
   return (

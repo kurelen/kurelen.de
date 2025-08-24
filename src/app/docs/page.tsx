@@ -8,13 +8,10 @@ export default function ApiDocsPage() {
 
   useEffect(() => {
     const init = () => {
-      // @ts-expect-error: Redoc injected by script
       if (window.Redoc && containerRef.current) {
-        // @ts-expect-error
         window.Redoc.init("/api/openapi.json", {}, containerRef.current);
       }
     };
-    // @ts-expect-error
     if (window.Redoc) init();
   }, []);
 
@@ -25,9 +22,7 @@ export default function ApiDocsPage() {
         src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"
         strategy="afterInteractive"
         onLoad={() => {
-          // @ts-expect-error
           if (window.Redoc && containerRef.current) {
-            // @ts-expect-error
             window.Redoc.init("/api/openapi.json", {}, containerRef.current);
           }
         }}

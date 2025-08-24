@@ -15,9 +15,9 @@ const config: StorybookConfig = {
   staticDirs: ["../public"],
   async viteFinal(cfg) {
     if (process.env.STORYBOOK_BASE_HREF) {
-      cfg.base = process.env.STORYBOOK_BASE_HREF
+      cfg.base = process.env.STORYBOOK_BASE_HREF;
     }
     return cfg;
-  }
+  },
 };
 export default config;

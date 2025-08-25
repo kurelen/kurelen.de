@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { prismaMock, setAuthUser, setAuthUserAdmin } from "@/tests/mocks";
 
-type RouteCtx = { params: { id: string } };
+type RouteCtx = { params: Promise<{ id: string }> };
 
 function urlFor(id: string) {
   return `http://localhost:3000/api/sessions/${id}`;
@@ -26,7 +26,7 @@ describe("DELETE /api/sessions/[id]", () => {
     prisma.session.updateMany.mockResolvedValue({ count: 1 });
 
     const { DELETE } = await import("@/app/api/sessions/[id]/route");
-    const ctx: RouteCtx = { params: { id: "s1" } };
+    const ctx: RouteCtx = { params: Promise.resolve({ id: "s1" }) };
     const res = await DELETE(
       new Request(urlFor("s1"), { method: "DELETE" }),
       ctx
@@ -57,7 +57,7 @@ describe("DELETE /api/sessions/[id]", () => {
 
     const { DELETE } = await import("@/app/api/sessions/[id]/route");
     const res = await DELETE(new Request(urlFor("s9"), { method: "DELETE" }), {
-      params: { id: "s9" },
+      params: Promise.resolve({ id: "s9" }),
     });
 
     expect(res.status).toBeLessThan(300);

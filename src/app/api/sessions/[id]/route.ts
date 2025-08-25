@@ -8,14 +8,15 @@ export const dynamic = "force-dynamic";
 
 export async function DELETE(
   _: Request,
-  { params }: { params: { id: string } }
+  ctx: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await ctx.params;
   const auth = await getAuthUser();
   if (!auth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const sess = await prisma.session.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: { id: true, userId: true },
   });
   if (!sess) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -23,11 +24,12 @@ export async function DELETE(
   const canRevoke =
     sess.userId === auth.user.id ||
     userHasPermission(auth.user, Permission.ADMIN);
+
   if (!canRevoke)
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   await prisma.session.update({
-    where: { id: params.id },
+    where: { id },
     data: { revokedAt: new Date() },
   });
   return NextResponse.json({ ok: true });

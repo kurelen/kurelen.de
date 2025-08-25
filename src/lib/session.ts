@@ -9,11 +9,10 @@ const SESSION_TTL_DAYS = Number(process.env.SESSION_TTL_DAYS || 30);
 export type AuthUser = User & { permissions: { permission: Permission }[] };
 
 export function cookieAttrs() {
-  const secure = process.env.NODE_ENV !== "development";
   return {
     httpOnly: true as const,
     sameSite: "lax" as const,
-    secure,
+    secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: SESSION_TTL_DAYS * 24 * 60 * 60,
   };
@@ -57,6 +56,10 @@ async function getSessionTokenFromRequest() {
   return c.get(COOKIE_NAME)?.value;
 }
 
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
 export async function getAuthUser(): Promise<{
   user: AuthUser;
   session: Session;
@@ -72,7 +75,13 @@ export async function getAuthUser(): Promise<{
     include: { user: { include: { permissions: true } } },
   });
 
-  if (!sess || sess.revokedAt || sess.expiresAt <= now) return null;
+  if (!sess || sess.revokedAt || sess.expiresAt <= now) {
+    if (process.env.NODE_ENV === "production") {
+      const jitter = 300 + Math.floor(Math.random() * 900);
+      await sleep(jitter);
+    }
+    return null;
+  }
   return { user: sess.user as AuthUser, session: sess };
 }
 

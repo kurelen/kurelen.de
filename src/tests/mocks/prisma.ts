@@ -26,7 +26,12 @@ type PrismaMock = {
 };
 
 const prisma: PrismaMock = {
-  user: { findUnique: vi.fn(), create: vi.fn(), findMany: vi.fn(), count: vi.fn() },
+  user: {
+    findUnique: vi.fn(),
+    create: vi.fn(),
+    findMany: vi.fn(),
+    count: vi.fn(),
+  },
   invite: {
     create: vi.fn(),
     findUnique: vi.fn(),

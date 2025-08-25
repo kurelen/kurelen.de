@@ -17,15 +17,21 @@ describe("DELETE /api/sessions/[id]", () => {
       expiresAt: new Date(Date.now() + 60_000),
     } as any);
 
-    prisma.session.update.mockResolvedValue({ id: "s1", revokedAt: new Date() } as any);
+    prisma.session.update.mockResolvedValue({
+      id: "s1",
+      revokedAt: new Date(),
+    } as any);
     prisma.session.updateMany.mockResolvedValue({ count: 1 } as any);
 
     const { DELETE } = await import("@/app/api/sessions/[id]/route");
-    const res = await DELETE(new Request(urlFor("s1"), { method: "DELETE" }), { params: { id: "s1" } } as any);
+    const res = await DELETE(new Request(urlFor("s1"), { method: "DELETE" }), {
+      params: { id: "s1" },
+    } as any);
 
     expect(res.status).toBeLessThan(300);
     expect(
-      prisma.session.update.mock.calls.length + prisma.session.updateMany.mock.calls.length
+      prisma.session.update.mock.calls.length +
+        prisma.session.updateMany.mock.calls.length
     ).toBeGreaterThan(0);
   });
 
@@ -40,10 +46,15 @@ describe("DELETE /api/sessions/[id]", () => {
       expiresAt: new Date(Date.now() + 60_000),
     } as any);
 
-    prisma.session.update.mockResolvedValue({ id: "s9", revokedAt: new Date() } as any);
+    prisma.session.update.mockResolvedValue({
+      id: "s9",
+      revokedAt: new Date(),
+    } as any);
 
     const { DELETE } = await import("@/app/api/sessions/[id]/route");
-    const res = await DELETE(new Request(urlFor("s9"), { method: "DELETE" }), { params: { id: "s9" } } as any);
+    const res = await DELETE(new Request(urlFor("s9"), { method: "DELETE" }), {
+      params: { id: "s9" },
+    } as any);
 
     expect(res.status).toBeLessThan(300);
     expect(prisma.session.update).toHaveBeenCalled();

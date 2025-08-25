@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { prismaMock, setAuthUserNone, setAuthUser, setAuthUserAdmin } from "@/tests/mocks";
+import {
+  prismaMock,
+  setAuthUserNone,
+  setAuthUser,
+  setAuthUserAdmin,
+} from "@/tests/mocks";
 
 const URL_SESSIONS = "http://localhost:3000/api/sessions";
 

@@ -4,7 +4,9 @@ import { prismaMock } from "@/tests/mocks";
 describe("GET /api/invites/verify", () => {
   it("returns 400 when missing token", async () => {
     const { GET } = await import("@/app/api/invites/verify/route");
-    const res = await GET(new Request("http://localhost:3000/api/invites/verify"));
+    const res = await GET(
+      new Request("http://localhost:3000/api/invites/verify")
+    );
     expect(res.status).toBe(400);
   });
 
@@ -19,7 +21,9 @@ describe("GET /api/invites/verify", () => {
 
     const { GET } = await import("@/app/api/invites/verify/route");
     const res = await GET(
-      new Request("http://localhost:3000/api/invites/verify?token=VALIDTOKEN_01"),
+      new Request(
+        "http://localhost:3000/api/invites/verify?token=VALIDTOKEN_01"
+      )
     );
     expect(res.status).toBe(200);
     const json: any = await res.json();

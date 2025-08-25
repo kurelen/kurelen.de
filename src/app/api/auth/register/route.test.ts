@@ -13,7 +13,11 @@ describe("POST /api/auth/register", () => {
     const req = new Request("http://localhost:3000/api/auth/register", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ token: "VALIDTOKEN_01", name: "A", password: "short" }),
+      body: JSON.stringify({
+        token: "VALIDTOKEN_01",
+        name: "A",
+        password: "short",
+      }),
     });
     const res = await POST(req);
     expect(res.status).toBe(400);
@@ -40,7 +44,11 @@ describe("POST /api/auth/register", () => {
       const result = await fn(tx);
       // Optional: verify we did the right writes
       expect(tx.user.create).toHaveBeenCalledWith({
-        data: { email: "new@kurelen.de", name: "Test User", passwordHash: "HASHED" },
+        data: {
+          email: "new@kurelen.de",
+          name: "Test User",
+          passwordHash: "HASHED",
+        },
         select: { id: true },
       });
       expect(tx.userPermission.createMany).toHaveBeenCalledWith({

@@ -4,9 +4,8 @@ import { prismaMock, setRequestCookie } from "@/tests/mocks";
 describe("session.getAuthUser", () => {
   it("returns null if session invalid/expired", async () => {
     vi.doUnmock("@/lib/session");
-    const { getAuthUser } = await vi.importActual<typeof import("@/lib/session")>(
-      "@/lib/session",
-    );
+    const { getAuthUser } =
+      await vi.importActual<typeof import("@/lib/session")>("@/lib/session");
 
     const prisma = prismaMock();
     prisma.session.findUnique.mockResolvedValue(null);
@@ -19,15 +18,18 @@ describe("session.getAuthUser", () => {
 
   it("returns user if session exists and not expired/revoked", async () => {
     vi.doUnmock("@/lib/session");
-    const { getAuthUser } = await vi.importActual<typeof import("@/lib/session")>(
-      "@/lib/session",
-    );
+    const { getAuthUser } =
+      await vi.importActual<typeof import("@/lib/session")>("@/lib/session");
 
     const prisma = prismaMock();
     prisma.session.findUnique.mockResolvedValue({
       revokedAt: null,
       expiresAt: new Date(Date.now() + 60_000),
-      user: { id: "u1", email: "a@b.c", permissions: [{ permission: "ADMIN" }] },
+      user: {
+        id: "u1",
+        email: "a@b.c",
+        permissions: [{ permission: "ADMIN" }],
+      },
     });
 
     setRequestCookie("sid", "rawtoken");

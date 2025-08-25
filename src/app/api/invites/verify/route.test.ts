@@ -1,37 +1,25 @@
-import { vi } from "vitest";
-
-// mock hashing so we don't care about real crypto
-vi.mock("@/lib/tokens", () => ({
-  sha256Hex: () => "HASHED",
-}));
-
-const findUnique = vi.fn();
-vi.mock("@/lib/db", () => ({
-  prisma: { invite: { findUnique } },
-}));
+import { describe, it, expect } from "vitest";
+import { prismaMock } from "@/tests/mocks";
 
 describe("GET /api/invites/verify", () => {
-  beforeEach(() => vi.resetAllMocks());
-
   it("returns 400 when missing token", async () => {
-    const { GET } = await import("./route");
-    const res = await GET(
-      new Request("http://localhost:3000/api/invites/verify")
-    );
+    const { GET } = await import("@/app/api/invites/verify/route");
+    const res = await GET(new Request("http://localhost:3000/api/invites/verify"));
     expect(res.status).toBe(400);
   });
 
   it("returns data for valid token", async () => {
-    findUnique.mockResolvedValue({
+    const prisma = prismaMock();
+    prisma.invite.findUnique.mockResolvedValue({
       email: "t@kurelen.de",
-      expiresAt: new Date(Date.now() + 1000 * 60),
+      expiresAt: new Date(Date.now() + 60_000),
       consumedAt: null,
       permissions: ["RECEIPTS"],
     });
 
-    const { GET } = await import("./route");
+    const { GET } = await import("@/app/api/invites/verify/route");
     const res = await GET(
-      new Request("http://localhost:3000/api/invites/verify?token=abc")
+      new Request("http://localhost:3000/api/invites/verify?token=VALIDTOKEN_01"),
     );
     expect(res.status).toBe(200);
     const json: any = await res.json();

@@ -1,4 +1,3 @@
-
 import { vi } from "vitest";
 
 type Fn = ReturnType<typeof vi.fn>;
@@ -8,6 +7,7 @@ type PrismaMock = {
     findUnique: Fn;
     create: Fn;
     findMany: Fn;
+    count: Fn;
   };
   invite: {
     create: Fn;
@@ -26,9 +26,20 @@ type PrismaMock = {
 };
 
 const prisma: PrismaMock = {
-  user: { findUnique: vi.fn(), create: vi.fn(), findMany: vi.fn() },
-  invite: { create: vi.fn(), findUnique: vi.fn(), update: vi.fn(), findMany: vi.fn() },
-  session: { findUnique: vi.fn(), findMany: vi.fn(), create: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
+  user: { findUnique: vi.fn(), create: vi.fn(), findMany: vi.fn(), count: vi.fn() },
+  invite: {
+    create: vi.fn(),
+    findUnique: vi.fn(),
+    update: vi.fn(),
+    findMany: vi.fn(),
+  },
+  session: {
+    findUnique: vi.fn(),
+    findMany: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    updateMany: vi.fn(),
+  },
   $transaction: vi.fn(),
 };
 
@@ -42,6 +53,7 @@ export function resetPrismaMock() {
   prisma.user.findUnique.mockReset();
   prisma.user.create.mockReset();
   prisma.user.findMany.mockReset();
+  prisma.user.count.mockReset();
   prisma.invite.create.mockReset();
   prisma.invite.findUnique.mockReset();
   prisma.invite.update.mockReset();

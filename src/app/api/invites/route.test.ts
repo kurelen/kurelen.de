@@ -18,6 +18,7 @@ describe("POST /api/invites", () => {
       email: "test@example.com",
       permissions: [],
     });
+
     const res = await POST(req);
     expect(res.status).toBe(401);
   });
@@ -26,6 +27,7 @@ describe("POST /api/invites", () => {
     setAuthUserAdmin();
     setRandomToken("FIXED_TOKEN");
     setSha256("FIXED_HASH");
+
     const prisma = prismaMock();
     prisma.invite.create.mockResolvedValue({ id: "inv1" });
 
@@ -34,6 +36,7 @@ describe("POST /api/invites", () => {
       email: "test@example.com",
       permissions: ["RECEIPTS"],
     });
+
     const res = await POST(req);
     const json = await readJson<any>(res);
 

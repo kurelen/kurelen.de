@@ -1,63 +1,60 @@
-import { vi } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+import { prismaMock } from "@/tests/mocks";
 
+// Mock bcrypt hashing
 vi.mock("bcryptjs", () => ({
   default: { hash: vi.fn(async () => "HASHED") },
   hash: vi.fn(async () => "HASHED"),
 }));
-vi.mock("@/lib/tokens", () => ({ sha256Hex: () => "INV_HASH" }));
-
-const prismaMock = {
-  invite: { findUnique: vi.fn() },
-  user: { findUnique: vi.fn() },
-  $transaction: vi.fn(),
-};
-vi.mock("@/lib/db", () => ({ prisma: prismaMock }));
 
 describe("POST /api/auth/register", () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
-  });
-
   it("rejects short password (400)", async () => {
-    const { POST } = await import("./route");
+    const { POST } = await import("@/app/api/auth/register/route");
     const req = new Request("http://localhost:3000/api/auth/register", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        token: "VALIDTOKEN_01",
-        name: "A",
-        password: "short",
-      }), // < 8 chars
+      body: JSON.stringify({ token: "VALIDTOKEN_01", name: "A", password: "short" }),
     });
     const res = await POST(req);
     expect(res.status).toBe(400);
   });
 
   it("creates user and consumes invite (201)", async () => {
-    prismaMock.invite.findUnique.mockResolvedValue({
+    const prisma = prismaMock();
+
+    prisma.invite.findUnique.mockResolvedValue({
       email: "new@kurelen.de",
       consumedAt: null,
       expiresAt: new Date(Date.now() + 60_000),
       permissions: ["RECEIPTS"],
     });
-    prismaMock.user.findUnique.mockResolvedValue(null);
+    prisma.user.findUnique.mockResolvedValue(null);
 
-    // emulate $transaction callback API
-    prismaMock.$transaction.mockImplementation(async (fn: any) => {
+    // Emulate Prisma $transaction client with required methods
+    prisma.$transaction.mockImplementation(async (fn: any) => {
       const tx = {
         user: { create: vi.fn().mockResolvedValue({ id: "u1" }) },
         invite: { update: vi.fn().mockResolvedValue({}) },
+        userPermission: { createMany: vi.fn().mockResolvedValue({ count: 1 }) },
       };
-      const created = await fn(tx);
-      expect(tx.user.create).toHaveBeenCalled();
+      const result = await fn(tx);
+      // Optional: verify we did the right writes
+      expect(tx.user.create).toHaveBeenCalledWith({
+        data: { email: "new@kurelen.de", name: "Test User", passwordHash: "HASHED" },
+        select: { id: true },
+      });
+      expect(tx.userPermission.createMany).toHaveBeenCalledWith({
+        data: [{ userId: "u1", permission: "RECEIPTS" }],
+        skipDuplicates: true,
+      });
       expect(tx.invite.update).toHaveBeenCalledWith({
-        where: { tokenHash: "INV_HASH" },
+        where: { tokenHash: expect.any(String) },
         data: { consumedAt: expect.any(Date), consumedById: "u1" },
       });
-      return created;
+      return result;
     });
 
-    const { POST } = await import("./route");
+    const { POST } = await import("@/app/api/auth/register/route");
     const req = new Request("http://localhost:3000/api/auth/register", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -69,6 +66,7 @@ describe("POST /api/auth/register", () => {
     });
     const res = await POST(req);
     const json: any = await res.json();
+
     expect(res.status).toBe(201);
     expect(json.ok).toBe(true);
     expect(json.userId).toBe("u1");

@@ -4,7 +4,13 @@ const getAuthUser = vi.fn();
 const userHasPermission = vi.fn();
 
 export const COOKIE_NAME = "sid";
-export const cookieAttrs = () => ({ httpOnly: true, sameSite: "lax" as const, secure: false, path: "/", maxAge: 60 });
+export const cookieAttrs = () => ({
+  httpOnly: true,
+  sameSite: "lax" as const,
+  secure: false,
+  path: "/",
+  maxAge: 60,
+});
 
 vi.mock("@/lib/session", () => ({
   getAuthUser,
@@ -14,11 +20,17 @@ vi.mock("@/lib/session", () => ({
 }));
 
 export function setAuthUser(user: any | null) {
-  getAuthUser.mockResolvedValue(user ? { user, session: { id: "sess1" } } : null);
+  getAuthUser.mockResolvedValue(
+    user ? { user, session: { id: "sess1" } } : null
+  );
 }
 
 export function setAuthUserAdmin() {
-  setAuthUser({ id: "u1", email: "admin@kurelen.de", permissions: [{ permission: "ADMIN" }] });
+  setAuthUser({
+    id: "u1",
+    email: "admin@kurelen.de",
+    permissions: [{ permission: "ADMIN" }],
+  });
   userHasPermission.mockReturnValue(true);
 }
 

@@ -7,6 +7,7 @@ import {
   setSha256,
   jsonRequest,
   readJson,
+  muteConsoleError,
 } from "@/tests/mocks";
 
 describe("POST /api/invites", () => {
@@ -51,5 +52,23 @@ describe("POST /api/invites", () => {
       select: { id: true },
     });
     expect(json.inviteUrl).toContain("token=FIXED_TOKEN");
+  });
+
+  it("500 when DB create fails", async () => {
+    const restore = muteConsoleError();
+    setAuthUserAdmin();
+    const prisma = prismaMock();
+    prisma.invite.create.mockRejectedValue(new Error("boom"));
+
+    const { POST } = await import("@/app/api/invites/route");
+    const req = jsonRequest("http://localhost:3000/api/invites", "POST", {
+      email: "err@example.com",
+      permissions: [],
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(500);
+
+    restore();
   });
 });

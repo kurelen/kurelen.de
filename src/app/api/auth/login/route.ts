@@ -32,9 +32,11 @@ export async function POST(req: Request) {
         { status: 401 }
       );
 
-    await issueSession(user.id);
+    const { cookie } = await issueSession(user.id);
 
-    return NextResponse.json({ ok: true });
+    const res = NextResponse.json({ ok: true });
+    res.cookies.set(cookie.name, cookie.value, cookie.attrs);
+    return res;
   } catch (err) {
     console.error("POST /api/auth/login error:", err);
     return NextResponse.json(

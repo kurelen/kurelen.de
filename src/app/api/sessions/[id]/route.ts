@@ -21,7 +21,8 @@ export async function DELETE(
   if (!sess) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const canRevoke =
-    sess.userId === auth.user.id || userHasPermission(auth.user, Permission.ADMIN);
+    sess.userId === auth.user.id ||
+    userHasPermission(auth.user, Permission.ADMIN);
   if (!canRevoke)
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 

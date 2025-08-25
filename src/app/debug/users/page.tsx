@@ -1,50 +1,49 @@
 import { prisma } from "@/lib/db";
-import { notFound } from "next/navigation";
 
-export const dynamic = "force-dynamic"; // always fresh in dev
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-export default async function UsersPage() {
-  if (process.env.NODE_ENV !== "development") notFound();
-
+export default async function DebugUsersPage() {
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
-    select: { id: true, email: true, name: true, role: true, createdAt: true },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      createdAt: true,
+      permissions: { select: { permission: true } },
+    },
   });
 
   return (
     <main className="mx-auto max-w-3xl p-6">
-      <h1 className="mb-4 text-2xl font-semibold">Users (dev)</h1>
-      <div className="overflow-x-auto rounded-xl ring-1 ring-gray-200">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-3 py-2 text-left font-medium">Email</th>
-              <th className="px-3 py-2 text-left font-medium">Name</th>
-              <th className="px-3 py-2 text-left font-medium">Role</th>
-              <th className="px-3 py-2 text-left font-medium">Created</th>
+      <h1 className="mb-4 text-2xl font-semibold">Users (debug)</h1>
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="text-left">
+            <th className="px-3 py-2">Email</th>
+            <th className="px-3 py-2">Name</th>
+            <th className="px-3 py-2">Permissions</th>
+            <th className="px-3 py-2">Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((u) => (
+            <tr key={u.id} className="border-t">
+              <td className="px-3 py-2">{u.email}</td>
+              <td className="px-3 py-2">{u.name ?? "—"}</td>
+              <td className="px-3 py-2">
+                {u.permissions.length
+                  ? u.permissions.map((p) => p.permission).join(", ")
+                  : "—"}
+              </td>
+              <td className="px-3 py-2">
+                {new Date(u.createdAt).toLocaleString()}
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => (
-              <tr key={u.id} className="odd:bg-white even:bg-gray-50">
-                <td className="px-3 py-2">{u.email}</td>
-                <td className="px-3 py-2">{u.name ?? "—"}</td>
-                <td className="px-3 py-2">{u.role}</td>
-                <td className="px-3 py-2">
-                  {new Date(u.createdAt).toLocaleString()}
-                </td>
-              </tr>
-            ))}
-            {users.length === 0 && (
-              <tr>
-                <td className="px-3 py-6 text-gray-500" colSpan={4}>
-                  No users yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </main>
   );
 }

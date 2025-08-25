@@ -39,6 +39,7 @@ cp .env.example .env
 
 ```bash
 make db-up
+make host-seed
 npm run dev
 ```
 

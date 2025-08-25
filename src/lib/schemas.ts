@@ -1,5 +1,7 @@
 import { z } from "@/lib/zod";
 
+export const OkResponse = z.object({ ok: z.literal(true) });
+
 export const PermissionEnum = z.enum(["ADMIN", "RECEIPTS", "FAMILYTREE"]);
 
 export const UserPublic = z.object({
@@ -49,13 +51,22 @@ export const LoginRequest = z.object({
   email: z.string().email(),
   password: z.string().min(1),
 });
-export const LoginResponse = z.object({ ok: z.literal(true) });
+export const LoginResponse = OkResponse;
 
 export const MeResponse = z.object({
   id: z.string().uuid(),
   email: z.string().email(),
   name: z.string().nullable().optional(),
-  permissions: z.array(z.enum(["ADMIN", "RECEIPTS", "FAMILYTREE"])),
+  permissions: z.array(PermissionEnum),
+});
+
+export const SessionPublic = z.object({
+  id: z.string().uuid(),
+  createdAt: z.string().datetime(),
+  expiresAt: z.string().datetime(),
+  revokedAt: z.string().datetime().nullable(),
+  userAgent: z.string().nullable().optional(),
+  ip: z.string().nullable().optional(),
 });
 
 export const AuthLoginRequest = z.object({

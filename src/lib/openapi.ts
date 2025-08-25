@@ -4,8 +4,6 @@ import {
 } from "@asteasolutions/zod-to-openapi";
 import { z } from "@/lib/zod";
 import {
-  // shared schemas you already have in src/lib/schemas.ts
-  PermissionEnum,
   UserPublic,
   ErrorResponse,
   InviteCreateRequest,
@@ -13,35 +11,12 @@ import {
   InviteVerifyResponse,
   RegisterRequest,
   RegisterResponse,
+  LoginRequest,
+  LoginResponse,
+  OkResponse,
+  MeResponse,
+  SessionPublic,
 } from "@/lib/schemas";
-
-/**
- * Additional inline schemas for endpoints not in schemas.ts.
- * If you prefer centralizing, you can move these into src/lib/schemas.ts later.
- */
-const OkResponse = z.object({ ok: z.literal(true) });
-
-const LoginRequest = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
-});
-const LoginResponse = OkResponse;
-
-const MeResponse = z.object({
-  id: z.string().uuid(),
-  email: z.string().email(),
-  name: z.string().nullable().optional(),
-  permissions: z.array(PermissionEnum),
-});
-
-const SessionPublic = z.object({
-  id: z.string().uuid(),
-  createdAt: z.string().datetime(),
-  expiresAt: z.string().datetime(),
-  revokedAt: z.string().datetime().nullable(),
-  userAgent: z.string().nullable().optional(),
-  ip: z.string().nullable().optional(),
-});
 
 export function getOpenAPIDocument() {
   const registry = new OpenAPIRegistry();

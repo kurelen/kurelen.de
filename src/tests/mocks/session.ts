@@ -1,6 +1,10 @@
 import { vi } from "vitest";
 
-type MockUser = { id: string; email: string; permissions: { permission: string }[] };
+type MockUser = {
+  id: string;
+  email: string;
+  permissions: { permission: string }[];
+};
 
 const getAuthUser = vi.fn();
 const userHasPermission = vi.fn();

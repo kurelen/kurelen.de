@@ -16,4 +16,3 @@ describe("GET /api/openapi.json", () => {
     expect(spec.paths["/api/auth/register"]).toBeDefined();
   });
 });
-

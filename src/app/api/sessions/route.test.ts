@@ -39,7 +39,7 @@ describe("GET /api/sessions", () => {
 
     type ListResp = { sessions: unknown[] };
 
-    const json = await res.json() as ListResp;
+    const json = (await res.json()) as ListResp;
     expect(Array.isArray(json.sessions ?? json)).toBe(true);
   });
 

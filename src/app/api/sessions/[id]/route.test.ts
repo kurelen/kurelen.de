@@ -27,7 +27,10 @@ describe("DELETE /api/sessions/[id]", () => {
 
     const { DELETE } = await import("@/app/api/sessions/[id]/route");
     const ctx: RouteCtx = { params: { id: "s1" } };
-    const res = await DELETE(new Request(urlFor("s1"), { method: "DELETE" }), ctx);
+    const res = await DELETE(
+      new Request(urlFor("s1"), { method: "DELETE" }),
+      ctx
+    );
 
     expect(res.status).toBeLessThan(300);
     expect(

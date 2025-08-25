@@ -11,7 +11,7 @@ describe("GET /api/health/db", () => {
     const { GET } = await import("@/app/api/health/db/route");
     const res = await GET();
     expect(res.status).toBe(200);
-    const json = await res.json() as HealthOk;
+    const json = (await res.json()) as HealthOk;
     expect(json).toEqual({ ok: true, users: 3 });
   });
 

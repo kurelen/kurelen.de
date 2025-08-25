@@ -23,6 +23,7 @@ Private Next.js application for family. Collect and share receipts.
 git clone https://github.com/kurelen/kurelen.de.git
 cd kurelen.de
 npm install
+git config core.hooksPath .githooks/
 ```
 
 ### 2. Environment setup

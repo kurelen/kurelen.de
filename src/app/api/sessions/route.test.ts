@@ -6,6 +6,8 @@ import {
   setAuthUserAdmin,
 } from "@/tests/mocks";
 
+type FindManyArgs = { where?: { userId?: string } };
+
 const URL_SESSIONS = "http://localhost:3000/api/sessions";
 
 describe("GET /api/sessions", () => {
@@ -23,19 +25,21 @@ describe("GET /api/sessions", () => {
     prisma.session.findMany.mockResolvedValue([
       { id: "s1", userId: "u1", revokedAt: null },
       { id: "s2", userId: "u1", revokedAt: null },
-    ] as any);
+    ]);
 
     const { GET } = await import("@/app/api/sessions/route");
     const res = await GET(new Request(URL_SESSIONS));
     expect(res.status).toBe(200);
     expect(prisma.session.findMany).toHaveBeenCalled();
 
-    const args = prisma.session.findMany.mock.calls[0][0];
+    const args = prisma.session.findMany.mock.calls[0][0] as FindManyArgs;
     if (args?.where) {
       expect(args.where.userId).toBe("u1");
     }
 
-    const json: any = await res.json();
+    type ListResp = { sessions: unknown[] };
+
+    const json = await res.json() as ListResp;
     expect(Array.isArray(json.sessions ?? json)).toBe(true);
   });
 
@@ -43,7 +47,7 @@ describe("GET /api/sessions", () => {
     const prisma = prismaMock();
     setAuthUserAdmin();
 
-    prisma.session.findMany.mockResolvedValue([{ id: "sX" }] as any);
+    prisma.session.findMany.mockResolvedValue([{ id: "sX" }]);
 
     const { GET } = await import("@/app/api/sessions/route");
     const res = await GET(new Request(URL_SESSIONS));

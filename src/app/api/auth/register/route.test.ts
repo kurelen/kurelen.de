@@ -1,6 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
 import { prismaMock } from "@/tests/mocks";
 
+type MockFn = ReturnType<typeof vi.fn>;
+type Tx = {
+  user: { create: MockFn };
+  invite: { update: MockFn };
+  userPermission: { createMany: MockFn };
+};
+
 // Mock bcrypt hashing
 vi.mock("bcryptjs", () => ({
   default: { hash: vi.fn(async () => "HASHED") },
@@ -35,32 +42,36 @@ describe("POST /api/auth/register", () => {
     prisma.user.findUnique.mockResolvedValue(null);
 
     // Emulate Prisma $transaction client with required methods
-    prisma.$transaction.mockImplementation(async (fn: any) => {
-      const tx = {
-        user: { create: vi.fn().mockResolvedValue({ id: "u1" }) },
-        invite: { update: vi.fn().mockResolvedValue({}) },
-        userPermission: { createMany: vi.fn().mockResolvedValue({ count: 1 }) },
-      };
-      const result = await fn(tx);
-      // Optional: verify we did the right writes
-      expect(tx.user.create).toHaveBeenCalledWith({
-        data: {
-          email: "new@kurelen.de",
-          name: "Test User",
-          passwordHash: "HASHED",
-        },
-        select: { id: true },
-      });
-      expect(tx.userPermission.createMany).toHaveBeenCalledWith({
-        data: [{ userId: "u1", permission: "RECEIPTS" }],
-        skipDuplicates: true,
-      });
-      expect(tx.invite.update).toHaveBeenCalledWith({
-        where: { tokenHash: expect.any(String) },
-        data: { consumedAt: expect.any(Date), consumedById: "u1" },
-      });
-      return result;
-    });
+    prisma.$transaction.mockImplementation(
+      async (fn: (tx: TX) => Promise<unknown>) => {
+        const tx: Tx = {
+          user: { create: vi.fn().mockResolvedValue({ id: "u1" }) },
+          invite: { update: vi.fn().mockResolvedValue({}) },
+          userPermission: {
+            createMany: vi.fn().mockResolvedValue({ count: 1 }),
+          },
+        };
+        const result = await fn(tx);
+        // Optional: verify we did the right writes
+        expect(tx.user.create).toHaveBeenCalledWith({
+          data: {
+            email: "new@kurelen.de",
+            name: "Test User",
+            passwordHash: "HASHED",
+          },
+          select: { id: true },
+        });
+        expect(tx.userPermission.createMany).toHaveBeenCalledWith({
+          data: [{ userId: "u1", permission: "RECEIPTS" }],
+          skipDuplicates: true,
+        });
+        expect(tx.invite.update).toHaveBeenCalledWith({
+          where: { tokenHash: expect.any(String) },
+          data: { consumedAt: expect.any(Date), consumedById: "u1" },
+        });
+        return result;
+      }
+    );
 
     const { POST } = await import("@/app/api/auth/register/route");
     const req = new Request("http://localhost:3000/api/auth/register", {
@@ -73,7 +84,7 @@ describe("POST /api/auth/register", () => {
       }),
     });
     const res = await POST(req);
-    const json: any = await res.json();
+    const json = await res.json();
 
     expect(res.status).toBe(201);
     expect(json.ok).toBe(true);

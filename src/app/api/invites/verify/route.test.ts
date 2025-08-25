@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { prismaMock } from "@/tests/mocks";
 
+type VerifyOk = { ok: true; email: string; permissions: string[]; expiresAt: string };
+
 describe("GET /api/invites/verify", () => {
   it("returns 400 when missing token", async () => {
     const { GET } = await import("@/app/api/invites/verify/route");
@@ -26,7 +28,7 @@ describe("GET /api/invites/verify", () => {
       )
     );
     expect(res.status).toBe(200);
-    const json: any = await res.json();
+    const json = await res.json() as VerifyOk;
     expect(json.email).toBe("t@kurelen.de");
     expect(json.permissions).toEqual(["RECEIPTS"]);
   });

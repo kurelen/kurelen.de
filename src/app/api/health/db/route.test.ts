@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { prismaMock, muteConsoleError } from "@/tests/mocks";
 
+type HealthOk = { ok: true; users: number };
+
 describe("GET /api/health/db", () => {
   it("returns ok with user count", async () => {
     const prisma = prismaMock();
@@ -9,7 +11,7 @@ describe("GET /api/health/db", () => {
     const { GET } = await import("@/app/api/health/db/route");
     const res = await GET();
     expect(res.status).toBe(200);
-    const json: any = await res.json();
+    const json = await res.json() as HealthOk;
     expect(json).toEqual({ ok: true, users: 3 });
   });
 

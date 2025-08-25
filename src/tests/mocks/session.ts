@@ -1,5 +1,7 @@
 import { vi } from "vitest";
 
+type MockUser = { id: string; email: string; permissions: { permission: string }[] };
+
 const getAuthUser = vi.fn();
 const userHasPermission = vi.fn();
 
@@ -19,7 +21,7 @@ vi.mock("@/lib/session", () => ({
   cookieAttrs,
 }));
 
-export function setAuthUser(user: any | null) {
+export function setAuthUser(user: MockUser | null) {
   getAuthUser.mockResolvedValue(
     user ? { user, session: { id: "sess1" } } : null
   );

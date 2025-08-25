@@ -38,7 +38,7 @@ describe("POST /api/invites", () => {
     });
 
     const res = await POST(req);
-    const json = await readJson<any>(res);
+    const json = await readJson<{ inviteUrl: string}>(res);
 
     expect(res.status).toBe(201);
     expect(prisma.invite.create).toHaveBeenCalledWith({

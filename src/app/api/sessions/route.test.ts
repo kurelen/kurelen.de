@@ -8,13 +8,11 @@ import {
 
 type FindManyArgs = { where?: { userId?: string } };
 
-const URL_SESSIONS = "http://localhost:3000/api/sessions";
-
 describe("GET /api/sessions", () => {
   it("401 when not authenticated", async () => {
     setAuthUserNone();
     const { GET } = await import("@/app/api/sessions/route");
-    const res = await GET(new Request(URL_SESSIONS));
+    const res = await GET();
     expect(res.status).toBe(401);
   });
 
@@ -28,7 +26,7 @@ describe("GET /api/sessions", () => {
     ]);
 
     const { GET } = await import("@/app/api/sessions/route");
-    const res = await GET(new Request(URL_SESSIONS));
+    const res = await GET();
     expect(res.status).toBe(200);
     expect(prisma.session.findMany).toHaveBeenCalled();
 
@@ -50,7 +48,7 @@ describe("GET /api/sessions", () => {
     prisma.session.findMany.mockResolvedValue([{ id: "sX" }]);
 
     const { GET } = await import("@/app/api/sessions/route");
-    const res = await GET(new Request(URL_SESSIONS));
+    const res = await GET();
     expect(res.status).toBe(200);
 
     const args = prisma.session.findMany.mock.calls[0][0];

@@ -4,6 +4,7 @@ import storybook from "eslint-plugin-storybook";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,11 +25,25 @@ const eslintConfig = [
     ],
   },
   {
+    plugins: {
+      "simple-import-sort": simpleImportSort,
+    },
     rules: {
       quotes: ["error", "double", { avoidEscape: true }],
       "jsx-quotes": ["error", "prefer-double"],
       semi: ["error", "always"],
-      // do not set indent here; Prettier handles it (2 spaces)
+      "simple-import-sort/exports": "error",
+      "no-duplicate-imports": "error",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          vars: "all",
+          args: "after-used",
+          ignoreRestSiblings: true,
+          argsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
     },
   },
   ...storybook.configs["flat/recommended"],

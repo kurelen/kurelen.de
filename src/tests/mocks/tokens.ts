@@ -1,11 +1,11 @@
 import { vi } from "vitest";
 
-const randomToken = vi.fn(() => "FIXED_TOKEN");
-const sha256Hex = vi.fn(() => "FIXED_HASH");
+const randomToken = vi.fn((_len?: number) => "FIXED_TOKEN");
+const sha256Hex = vi.fn((_s: string) => "FIXED_HASH");
 
 vi.mock("@/lib/tokens", () => ({
-  randomToken: (...args: unknown[]) => randomToken(...args),
-  sha256Hex: (...args: unknown[]) => sha256Hex(...args),
+  randomToken: (len?: number) => randomToken(len),
+  sha256Hex: (s: string) => sha256Hex(s),
 }));
 
 export function setRandomToken(value: string) {

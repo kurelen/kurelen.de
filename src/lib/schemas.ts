@@ -57,3 +57,9 @@ export const MeResponse = z.object({
   name: z.string().nullable().optional(),
   permissions: z.array(z.enum(["ADMIN", "RECEIPTS", "FAMILYTREE"])),
 });
+
+export const AuthLoginRequest = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+export type AuthLoginRequest = z.infer<typeof AuthLoginRequest>;

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { json, jsonError, getOrigin, parseBody } from "@/lib/api";
 import { z } from "@/lib/zod";
 
@@ -10,11 +10,10 @@ describe("lib/api", () => {
   });
 
   it("jsonError hides details in production", async () => {
-    const OLD = process.env.NODE_ENV;
-    process.env.NODE_ENV = "production";
+    vi.stubEnv("NODE_ENV", "production");
     const res = jsonError("Bad", 400, { detail: "x" });
     expect(await res.json()).toEqual({ error: "Bad" });
-    process.env.NODE_ENV = OLD;
+    vi.unstubAllEnvs();
   });
 
   it("getOrigin extracts origin", () => {

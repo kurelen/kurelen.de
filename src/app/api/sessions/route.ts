@@ -17,7 +17,7 @@ export async function GET() {
       id: true,
       userId: true,
       createdAt: true,
-      lastActiveAt: true,
+      expiresAt: true,
       revokedAt: true,
     },
   });

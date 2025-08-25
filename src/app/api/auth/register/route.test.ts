@@ -43,7 +43,7 @@ describe("POST /api/auth/register", () => {
 
     // Emulate Prisma $transaction client with required methods
     prisma.$transaction.mockImplementation(
-      async (fn: (tx: TX) => Promise<unknown>) => {
+      async (fn: (tx: Tx) => Promise<unknown>) => {
         const tx: Tx = {
           user: { create: vi.fn().mockResolvedValue({ id: "u1" }) },
           invite: { update: vi.fn().mockResolvedValue({}) },

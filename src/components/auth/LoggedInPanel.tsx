@@ -1,6 +1,6 @@
 "use client";
 
-import { useT } from "@/i18n";
+import { useTranslations } from "next-intl";
 
 type UserInfo = {
   id: string;
@@ -10,32 +10,31 @@ type UserInfo = {
 };
 
 export default function LoggedInPanel({ user }: { user: UserInfo }) {
-  const t = useT();
+  const t = useTranslations("me");
   const perms = (user.permissions ?? []).map((p) =>
     typeof p === "string" ? p : p.permission
   );
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    // refresh page so server renders login form again
     window.location.reload();
   }
 
   return (
     <div className="mx-auto mt-16 max-w-xl rounded-2xl bg-white p-6 shadow">
-      <h1 className="mb-4 text-2xl font-semibold">{t("me.title")}</h1>
+      <h1 className="mb-4 text-2xl font-semibold">{t("title")}</h1>
       <div className="space-y-2 text-sm">
         <div>
-          <span className="font-medium">{t("me.id")}: </span>
+          <span className="font-medium">{t("id")}: </span>
           <span>{user.id}</span>
         </div>
         <div>
-          <span className="font-medium">{t("me.email")}: </span>
+          <span className="font-medium">{t("email")}: </span>
           <span>{user.email}</span>
         </div>
         {!!perms.length && (
           <div>
-            <span className="font-medium">{t("me.permissions")}: </span>
+            <span className="font-medium">{t("permissions")}: </span>
             <span>{perms.join(", ")}</span>
           </div>
         )}
@@ -46,7 +45,7 @@ export default function LoggedInPanel({ user }: { user: UserInfo }) {
           onClick={logout}
           className="rounded-lg border border-gray-300 px-4 py-2 text-sm hover:bg-gray-100"
         >
-          {t("me.logout")}
+          {t("logout")}
         </button>
       </div>
     </div>

@@ -26,8 +26,7 @@ export default function LoginForm() {
         setLoading(false);
         return;
       }
-      // Success: reload so server shows the logged-in panel
-      window.location.href = "/login";
+      window.location.href = "/";
     } catch {
       setErr(t("login.error"));
       setLoading(false);

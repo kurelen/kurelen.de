@@ -5,12 +5,14 @@ export const metadata: Metadata = {
   title: "kurelen.de",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen">
-          {children}
-      </body>
+      <body className="min-h-screen">{children}</body>
     </html>
   );
 }

@@ -4,6 +4,7 @@ import { InviteCreateRequest } from "@/lib/schemas";
 import { randomToken, sha256Hex } from "@/lib/tokens";
 import { getAuthUser, userHasPermission } from "@/lib/session";
 import { Permission } from "@prisma/client";
+import { sendInviteEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -46,6 +47,8 @@ export async function POST(req: Request) {
 
     const origin = new URL(req.url).origin;
     const inviteUrl = `${origin}/register?token=${token}`;
+
+    await sendInviteEmail(email, inviteUrl);
 
     return NextResponse.json(
       { inviteId: created.id, inviteUrl },

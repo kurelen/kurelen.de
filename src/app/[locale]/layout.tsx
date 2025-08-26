@@ -1,6 +1,7 @@
 import "@/app/globals.css";
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
+import { ThemeProvider } from "next-themes";
 import { setRequestLocale } from "next-intl/server";
 import HeaderBar from "@/components/layout/HeaderBar";
 
@@ -21,10 +22,12 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body>
-        <NextIntlClientProvider>
-          <HeaderBar />
-          <main className="mx-auto max-w-5xl p-4">{children}</main>
-        </NextIntlClientProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <NextIntlClientProvider>
+            <HeaderBar />
+            <main className="mx-auto max-w-5xl p-4">{children}</main>
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
